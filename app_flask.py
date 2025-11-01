@@ -3,15 +3,34 @@
 # Fast & minimal. No audio. Uses YOLOv8n (auto-downloads if models/yolov8n.pt missing).
 
 import os
-if not os.path.exists("yolov8n.pt"):
-    os.system("wget https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt")
-
 from pathlib import Path
 from time import time
 from flask import Flask, request, redirect, url_for, Response, render_template_string, send_from_directory
 import cv2
 import numpy as np
 from ultralytics import YOLO
+# ==== Cloud setup (for Render / GitHub deploy) ====
+import os, subprocess, pathlib
+from pathlib import Path
+
+# make upload folder (use /tmp on Render)
+UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", "/tmp"))
+UPLOAD_DIR.mkdir(exist_ok=True)
+
+# ensure models folder exists and auto-download YOLOv8n if missing
+MODELS_DIR = Path("models"); MODELS_DIR.mkdir(exist_ok=True)
+YOLO_PATH = MODELS_DIR / "yolov8n.pt"
+if not YOLO_PATH.exists():
+    try:
+        subprocess.run([
+            "curl","-L",
+            "-o", str(YOLO_PATH),
+            "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt"
+        ], check=False)
+    except Exception:
+        pass
+# ==== end cloud setup ====
+
 
 BASE = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE / "uploads"; UPLOAD_DIR.mkdir(exist_ok=True)
