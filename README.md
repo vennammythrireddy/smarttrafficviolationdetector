@@ -1,2 +1,2 @@
 ## 🚦 Live Demo  
-https://traffic-violation-detector.onrender.com/
+https://smart-traffic-violation-detector.onrender.com
